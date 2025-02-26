@@ -1,79 +1,107 @@
-/* Modern & Fancy UI for Customer Dashboard */
+/* General Styling */
 body {
-  font-family: 'Arial', sans-serif;
-  background-color: #f4f4f4;
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
   margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+  padding: 20px;
 }
 
-.dashboard-container {
-  width: 90%;
-  max-width: 1100px;
+.container {
+  max-width: 1200px;
+  margin: auto;
   background: white;
   padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
-.dashboard-title {
-  text-align: center;
+h2 {
+  font-size: 22px;
   color: #333;
+  margin-bottom: 10px;
+}
+
+hr {
+  border: none;
+  height: 3px;
+  background: linear-gradient(to right, #007bff, #ff7300);
   margin-bottom: 20px;
-}
-
-.customer-sections {
-  display: flex;
-  gap: 20px;
-  justify-content: space-between;
-}
-
-.customer-card {
-  flex: 1;
-  background: linear-gradient(135deg, #6e8efb, #a777e3);
-  padding: 15px;
-  border-radius: 10px;
-  color: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.customer-card.potential {
-  background: linear-gradient(135deg, #f39c12, #f1c40f);
-}
-
-.customer-card h2 {
-  text-align: center;
-  margin-bottom: 15px;
 }
 
 /* Table Styling */
 table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
-  color: #333;
-  border-radius: 8px;
-  overflow: hidden;
+  margin-bottom: 20px;
 }
 
-thead {
-  background: #34495e;
-  color: white;
-}
-
-td, th {
-  padding: 12px;
+th, td {
+  padding: 10px;
   text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #333;
+  color: white;
+  font-weight: bold;
 }
 
 tr:nth-child(even) {
-  background: #ecf0f1;
+  background-color: #f2f2f2;
 }
 
-tr:hover {
-  background: #dcdde1;
-  transition: 0.3s;
+/* Status Labels */
+.status {
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.status.active {
+  background-color: #4b9f5e;
+  color: white;
+}
+
+.status.pending {
+  background-color: #ffc107;
+  color: black;
+}
+
+.status.lead {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.status.negotiation {
+  background-color: #ff7300;
+  color: white;
+}
+
+/* Delete Button */
+.delete-btn {
+  background-color: #602027;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.delete-btn:hover {
+  background-color: #2d1114;
+}
+
+.delete-icon {
+  font-size: 14px;
 }
