@@ -8,7 +8,7 @@ const CustomerDashboard = () => {
     {
       id: 1,
       business_name: "Al Inc",
-      er_kunde: true,
+      is_customer:1,
       created_at: "2024-02-01",
       address: "Oslo, Norway",
       status: "Active",
@@ -19,7 +19,7 @@ const CustomerDashboard = () => {
     {
       id: 2,
       business_name: "Tech",
-      er_kunde: true,
+      is_customer:1,
       created_at: "2024-03-01",
       address: "Bergen, Norway",
       status: "Pending",
@@ -30,7 +30,7 @@ const CustomerDashboard = () => {
     {
       id: 3,
       business_name: "Tech Inc",
-      er_kunde: false,
+      is_customer:0,
       created_at: "2024-02-05",
       address: "Stavanger, Norway",
       status: "Lead",
@@ -41,7 +41,7 @@ const CustomerDashboard = () => {
     {
       id: 4,
       business_name: "Metro",
-      er_kunde: false,
+      is_customer:0,
       created_at: "2024-02-15",
       address: "Trondheim, Norway",
       status: "Negotiation",
