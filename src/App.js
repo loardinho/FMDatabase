@@ -1,12 +1,10 @@
 import React from "react";
-import "./style.css";
-
+import CustomerDashboard from "./Components/CustomerDashboard";
 
 function App() {
   return (
-    <div>
-      <h1>Customer Database</h1>
-      <p>This is blalala.</p>
+    <div className="App">
+      <CustomerDashboard />
     </div>
   );
 }
