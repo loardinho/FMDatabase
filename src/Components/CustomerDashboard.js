@@ -71,7 +71,7 @@ const CustomerDashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {businesses.filter(b => b.er_kunde).map((business) => (
+            {businesses.filter(b => b.is_customer ===1).map((business) => (
               <tr key={business.id}>
                 <td>{business.business_name}</td>
                 <td>{business.created_at}</td>
@@ -109,7 +109,7 @@ const CustomerDashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {businesses.filter(b => !b.er_kunde).map((business) => (
+            {businesses.filter(b => b.is_customer ===0).map((business) => (
               <tr key={business.id}>
                 <td>{business.business_name}</td>
                 <td>{business.created_at}</td>
