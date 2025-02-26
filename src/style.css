@@ -1,107 +1,107 @@
-/* General Styling */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f8f9fa;
+  font-family: 'Inter', sans-serif;
+  background-color: #f4f7fc;
+  color: #333;
   margin: 0;
   padding: 20px;
 }
 
 .container {
   max-width: 1200px;
-  margin: auto;
-  background: white;
+  margin: 0 auto;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
 }
 
 h2 {
   font-size: 22px;
-  color: #333;
-  margin-bottom: 10px;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 15px;
 }
 
-hr {
-  border: none;
-  height: 3px;
-  background: linear-gradient(to right, #007bff, #ff7300);
-  margin-bottom: 20px;
+.section-title {
+  border-bottom: 3px solid #2a5bd7;
+  padding-bottom: 8px;
+  margin-bottom: 15px;
 }
 
-/* Table Styling */
-table {
+.table-container {
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 20px;
+  overflow: hidden;
+  border-radius: 8px;
 }
 
-th, td {
-  padding: 10px;
+.table thead {
+  background: #2a5bd7;
+  color: #fff;
+  font-weight: 600;
+}
+
+.table th, .table td {
+  padding: 12px 16px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
 }
 
-th {
-  background-color: #333;
-  color: white;
-  font-weight: bold;
+.table tbody tr:nth-child(even) {
+  background: #f8f9ff;
 }
 
-tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-/* Status Labels */
 .status {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 14px;
+  display: inline-block;
+}
+
+.status-active {
+  background: #1b8b50;
+  color: #fff;
+}
+
+.status-pending {
+  background: #f39c12;
+  color: #fff;
+}
+
+.status-lead {
+  background: #0177b9;
+  color: #fff;
+}
+
+.status-negotiation {
+  background: #d9534f;
+  color: #fff;
+}
+
+.btn-delete {
+  background: #a03834;
   color: white;
   border: none;
   padding: 6px 10px;
-  font-size: 12px;
+  font-size: 13px;
+  border-radius: 4px;
   cursor: pointer;
-  border-radius: 5px;
+  transition: 0.3s;
   display: flex;
   align-items: center;
   gap: 5px;
 }
 
-.status.active {
-  background-color: #4b9f5e;
-  color: white;
+.btn-delete:hover {
+  background: #c9302c;
 }
 
-.status.pending {
-  background-color: #ffc107;
-  color: black;
-}
-
-.status.lead {
-  background-color: #17a2b8;
-  color: white;
-}
-
-.status.negotiation {
-  background-color: #ff7300;
-  color: white;
-}
-
-/* Delete Button */
-.delete-btn {
-  background-color: #602027;
-  color: white;
-  border: none;
-  padding: 6px 10px;
-  font-size: 12px;
-  cursor: pointer;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.delete-btn:hover {
-  background-color: #2d1114;
-}
-
-.delete-icon {
+.btn-delete i {
   font-size: 14px;
 }
