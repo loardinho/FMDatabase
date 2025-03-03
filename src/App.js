@@ -1,9 +1,8 @@
 // App.js
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./Pages/LoginPage";
 import CustomerDashboard from "./Components/CustomerDashboard";
-import MainMenu from "./Components/MainMenu";
 import ExistingCustomers from "./Components/ExistingCustomers";
 import PotentialCustomers from "./Components/PotentialCustomers";
 import CustomerDetails from "./Components/CustomerDetails";
@@ -27,13 +26,14 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<MainMenu />} />
+           <Route index element={<Navigate to="/dashboard" />} />
+  
           <Route path="existing" element={<ExistingCustomers />} />
-          {/* Notice :id param in the path */}
+          {}
           <Route path="existing/:id" element={<CustomerDetails />} />
 
           <Route path="potential" element={<PotentialCustomers />} />
-          {/* Notice :id param in the path */}
+          {}
           <Route path="potential/:id" element={<CustomerDetails />} />
 
           <Route path="import-export" element={<ImportExport />} />
