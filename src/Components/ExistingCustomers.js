@@ -10,7 +10,6 @@ function ExistingCustomers() {
       id: 1,
       business_name: "Al Inc",
       is_customer: 1,
-      created_at: "2024-02-01",
       address: "Oslo, Norway",
       status: "Active",
       contacts: [
@@ -21,7 +20,6 @@ function ExistingCustomers() {
       id: 2,
       business_name: "Tech",
       is_customer: 1,
-      created_at: "2024-03-01",
       address: "Bergen, Norway",
       status: "Pending",
       contacts: [
@@ -32,7 +30,6 @@ function ExistingCustomers() {
       id: 3,
       business_name: "Alpha Solutions",
       is_customer: 1,
-      created_at: "2024-03-10",
       address: "Oslo, Norway",
       status: "Active",
       contacts: [],
@@ -79,39 +76,37 @@ function ExistingCustomers() {
     <div className="existing-customers-container">
       <h2 className="section-title">Existing Customers</h2>
 
-      {/* Search  */}
-      <div className="search-filter-container">
-        <input
-          type="text"
-          placeholder="Search by business name or address..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
+      {}
+      {}
+<div className="search-filter-container">
+  <input
+    type="text"
+    placeholder="Search by business name or address..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="search-input"
+  />
 
-        {/* Status filter dropdown */}
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          className="filter-dropdown"
-        >
-          <option value="">All Statuses</option>
-          <option value="Active">Active</option>
-          <option value="Pending">Pending</option>
-          <option value="Lead">Lead</option>
-          <option value="Negotiation">Negotiation</option>
-          {/* Vi kan fjerne / adde senere her*/}
-        </select>
-      </div>
+  <select
+    value={filterStatus}
+    onChange={(e) => setFilterStatus(e.target.value)}
+    className="filter-dropdown"
+  >
+    <option value="">All Statuses</option>
+    <option value="Active">Active</option>
+    <option value="Pending">Pending</option>
+    {}
+  </select>
+</div>
 
-      {/* Table of (filtered) existing customers */}
+
+      {}
       <div className="table-wrapper">
         <table>
           <thead>
             <tr>
-              <th>Business Name</th>
-              <th>Created At</th>
-              <th>Address</th>
+              <th>Business</th>
+              <th>Contact</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>

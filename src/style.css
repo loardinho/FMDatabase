@@ -284,3 +284,22 @@ main {
   padding: 1rem;
   background-color: #fff;
 }
+
+/* Search filter */
+.search-filter-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem; 
+  margin-bottom: 1rem;
+}
+
+.search-input {
+  width: 200px; 
+  padding: 0.5rem;
+ 
+}
+
+.filter-dropdown {
+  padding: 0.5rem;
+  
+}

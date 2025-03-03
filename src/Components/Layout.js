@@ -15,7 +15,7 @@ function Layout() {
   return (
     <div className="layout-container">
       <header className="app-header">
-        <h1 className="app-title">My Customer App</h1>
+        <h1 className="app-title">The Customer Database</h1>
         <button className="logout-btn" onClick={handleLogout}>
           <FaSignOutAlt style={{ marginRight: "5px" }} />
           Logout

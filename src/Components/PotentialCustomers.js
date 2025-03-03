@@ -1,17 +1,14 @@
-// PotentialCustomers.js
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaTrash } from "react-icons/fa";
 import "../style.css";
 
 function PotentialCustomers() {
-
   const [businesses, setBusinesses] = useState([
     {
       id: 3,
       business_name: "Tech Inc",
       is_customer: 0,
-      created_at: "2024-02-05",
       address: "Stavanger, Norway",
       status: "Lead",
       contacts: [
@@ -22,21 +19,19 @@ function PotentialCustomers() {
       id: 4,
       business_name: "Metro",
       is_customer: 0,
-      created_at: "2024-02-15",
       address: "Trondheim, Norway",
       status: "Negotiation",
       contacts: [
         { id: 302, first_name: "Mel", last_name: "Melson", email: "mel@example.com" },
       ],
     },
-    
   ]);
 
-  // Search and filter 
+  // For search filter logic
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
 
-  
+  // Filter logic 
   const filteredBusinesses = businesses
     .filter((b) => b.is_customer === 0)
     .filter((b) => {
@@ -47,11 +42,10 @@ function PotentialCustomers() {
       );
     })
     .filter((b) => {
-      if (!filterStatus) return true; 
+      if (!filterStatus) return true;
       return b.status.toLowerCase() === filterStatus.toLowerCase();
     });
 
-  // Delete a business
   const deleteBusiness = (id) => {
     setBusinesses(businesses.filter((b) => b.id !== id));
   };
@@ -60,11 +54,11 @@ function PotentialCustomers() {
     <div className="potential-customers-container">
       <h2 className="section-title potential">Potential Customers</h2>
       
-      {/* Search& Filter */}
+      {}
       <div className="search-filter-container">
         <input
           type="text"
-          placeholder="Search by business name or address..."
+          placeholder="Search by business name or addr"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
@@ -80,44 +74,47 @@ function PotentialCustomers() {
           <option value="Negotiation">Negotiation</option>
           <option value="Pending">Pending</option>
           <option value="Active">Active</option>
-          {}
         </select>
       </div>
 
-      {/* Tabl potential customers */}
+      {}
       <div className="table-wrapper">
         <table>
           <thead>
             <tr>
-              <th>Business Name</th>
-              <th>Created At</th>
-              <th>Contacts</th>
-              <th>Address</th>
+              {/* Match your existing table columns exactly */}
+              <th>Business</th>
+              <th>Contact</th>
               <th>Status</th>
+              <th>Address</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredBusinesses.map((business) => (
               <tr key={business.id}>
+                {}
                 <td>
-                  {}
                   <Link to={`/dashboard/potential/${business.id}`}>
                     {business.business_name}
                   </Link>
                 </td>
-                <td>{business.created_at}</td>
+
+                {}
                 <td>
                   {business.contacts.map((contact) => (
                     <div key={contact.id}>
-                      • {contact.first_name} {contact.last_name} - {contact.email}
+                      {contact.first_name} {contact.last_name} - {contact.email}
                     </div>
                   ))}
                 </td>
-                <td>{business.address}</td>
+
                 <td className={`status ${business.status.toLowerCase()}`}>
                   {business.status}
                 </td>
+
+                <td>{business.address}</td>
+
                 <td>
                   <button
                     className="delete-btn"
@@ -128,11 +125,10 @@ function PotentialCustomers() {
                 </td>
               </tr>
             ))}
-            
-            {}
+
             {filteredBusinesses.length === 0 && (
               <tr>
-                <td colSpan="6">No matching potential customers found.</td>
+                <td colSpan="5">No matching potential customers found.</td>
               </tr>
             )}
           </tbody>
