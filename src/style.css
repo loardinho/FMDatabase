@@ -105,3 +105,131 @@ h2 {
 .btn-delete i {
   font-size: 14px;
 }
+
+
+/* LOGIN STYLE */
+.login-container {
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 20px;
+  background: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.login-container h2 {
+  margin-bottom: 20px;
+}
+
+.login-container input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.login-container button {
+  width: 100%;
+  padding: 10px;
+  background: #2a5bd7;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.error-message {
+  color: red;
+}
+
+/* DASHBOARD STYLING*/
+
+
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  
+  background-color: #f9f9f9;
+}
+
+/* Headline style */
+.dashboard-container h1 {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+
+
+/* Nav container */
+.dashboard-nav {
+  display: flex;
+  gap: 20px; 
+  background-color: #eee; 
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+
+
+/* Link styling */
+.nav-link {
+  text-decoration: none;
+  color: #333; 
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* Hover effect */
+.nav-link:hover {
+  background-color: #ddd;
+}
+
+.nav-link {
+  background-color: #3f51b5; 
+  color: #fff;
+}
+.nav-link:hover {
+  background-color: #30419b; 
+
+
+
+/* MAIN MENU*/
+.main-menu-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.main-menu-list li {
+  margin-bottom: 0.5rem;
+}
+
+
+.nav-link {
+  display: inline-block;
+  background-color: #1462b5;
+  color: #fff;
+  padding: 0.6rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.2s ease-in-out;
+}
+.nav-link:hover {
+  background-color: #0b1e31;
+}
+
+
+/* CustomerDashboard NAVLINKS */
+
+.nav-link.active {
+  background-color: #0b1e31;
+  color: #fff;
+}
+}
