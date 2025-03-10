@@ -1,44 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaTrash } from "react-icons/fa";
 import "../style.css";
+import { ApiContext } from "../ApiContext"; // Import ApiContext
+
 
 function PotentialCustomers() {
-  const [businesses, setBusinesses] = useState([
-    {
-      id: 3,
-      business_name: "Tech Inc",
-      is_customer: 0,
-      address: "Stavanger, Norway",
-      status: "Lead",
-      contacts: [
-        { id: 301, first_name: "Terry", last_name: "Terrison", email: "terry@example.com" },
-      ],
-    },
-    {
-      id: 4,
-      business_name: "Metro",
-      is_customer: 0,
-      address: "Trondheim, Norway",
-      status: "Negotiation",
-      contacts: [
-        { id: 302, first_name: "Mel", last_name: "Melson", email: "mel@example.com" },
-      ],
-    },
-  ]);
-
-  // For search filter logic
+  const [businesses, setBusinesses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
 
-  // Filter logic 
+  useEffect(() => {
+    const fetchBusinesses = () => {
+      fetch("https://frostmarketing.no/api/customers.php")
+        .then((res) => res.json())
+        .then((data) => {
+          setBusinesses(data);  // Sett data i tilstanden
+        })
+        .catch((err) => {
+          console.error("Error fetching businesses:", err);
+        });
+    };
+    
+    fetchBusinesses();  // Kall funksjonen for å hente data
+  }, []);  // Tom array betyr at denne effekten kun kjøres én gang ved første render
+  
   const filteredBusinesses = businesses
-    .filter((b) => b.is_customer === 0)
+    .filter((b) => b.is_customer !== "1")  // Only show potential customers (is_customer !== "1")
     .filter((b) => {
       const lowerSearch = searchTerm.toLowerCase();
       return (
         b.business_name.toLowerCase().includes(lowerSearch) ||
-        b.address.toLowerCase().includes(lowerSearch)
+        (b.adresse && b.adresse.toLowerCase().includes(lowerSearch))  // Use 'adresse' instead of 'address'
       );
     })
     .filter((b) => {
@@ -52,13 +45,12 @@ function PotentialCustomers() {
 
   return (
     <div className="potential-customers-container">
-      <h2 className="section-title potential">Potential Customers</h2>
-      
-      {}
+      <h2 className="section-title">Potential Customers</h2>
+
       <div className="search-filter-container">
         <input
           type="text"
-          placeholder="Search by business name or addr"
+          placeholder="Search by business name or address..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
@@ -70,51 +62,33 @@ function PotentialCustomers() {
           className="filter-dropdown"
         >
           <option value="">All Statuses</option>
-          <option value="Lead">Lead</option>
-          <option value="Negotiation">Negotiation</option>
-          <option value="Pending">Pending</option>
           <option value="Active">Active</option>
+          <option value="Pending">Pending</option>
         </select>
       </div>
 
-      {}
       <div className="table-wrapper">
         <table>
           <thead>
             <tr>
-              {/* Match your existing table columns exactly */}
               <th>Business</th>
               <th>Contact</th>
               <th>Status</th>
-              <th>Address</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredBusinesses.map((business) => (
               <tr key={business.id}>
-                {}
                 <td>
                   <Link to={`/dashboard/potential/${business.id}`}>
                     {business.business_name}
                   </Link>
                 </td>
-
-                {}
-                <td>
-                  {business.contacts.map((contact) => (
-                    <div key={contact.id}>
-                      {contact.first_name} {contact.last_name} - {contact.email}
-                    </div>
-                  ))}
-                </td>
-
+                <td>{business.adresse ? business.adresse : "No address"}</td>
                 <td className={`status ${business.status.toLowerCase()}`}>
                   {business.status}
                 </td>
-
-                <td>{business.address}</td>
-
                 <td>
                   <button
                     className="delete-btn"
@@ -125,10 +99,9 @@ function PotentialCustomers() {
                 </td>
               </tr>
             ))}
-
             {filteredBusinesses.length === 0 && (
               <tr>
-                <td colSpan="5">No matching potential customers found.</td>
+                <td colSpan="4">No matching potential customers found.</td>
               </tr>
             )}
           </tbody>

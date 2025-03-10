@@ -1,63 +1,104 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from "react";
 
-// Lager konteksten
+// Create the context
 export const ApiContext = createContext();
 
+// ApiProvider component
 export const ApiProvider = ({ children }) => {
-    const [businesses, setBusinesses] = useState([]);
-    const [contacts, setContacts] = useState({});
-    const [loading, setLoading] = useState(true);
-    const [isCustomer, setIsCustomer] = useState(1); // Standard til 1 (kunder)
+  const [businesses, setBusinesses] = useState([]);
+  const [contacts, setContacts] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [isCustomer, setIsCustomer] = useState(1); // Default to 1 (customers)
 
-    // Hent bedrifter, kan filtrere på kunder og ikke-kunder
-    const fetchBusinesses = async () => {
-        try {
-            const response = await fetch(`https://frostmarketing.no/api/customers.php?is_customer=${isCustomer}`); // Endre URL for å filtrere på kunder
-            const data = await response.json();
-            setBusinesses(data);
-        } catch (error) {
-            console.error('Error fetching businesses:', error);
+  // Fetch businesses (customers or potential customers)
+  const fetchBusinesses = async () => {
+    try {
+      const response = await fetch(
+        `https://frostmarketing.no/api/customers.php?is_customer=${isCustomer}`
+      );
+      const data = await response.json();
+      setBusinesses(data);
+    } catch (error) {
+      console.error("Error fetching businesses:", error);
+    }
+  };
+
+  // Fetch contacts
+  const fetchContacts = async () => {
+    try {
+      const response = await fetch("https://frostmarketing.no/api/contacts.php");
+      const data = await response.json();
+      const contactsByBusiness = {};
+
+      data.forEach((contact) => {
+        if (!contactsByBusiness[contact.business_id]) {
+          contactsByBusiness[contact.business_id] = [];
         }
-    };
+        contactsByBusiness[contact.business_id].push(contact);
+      });
 
-    // Hent kontaktpersoner
-    const fetchContacts = async () => {
-        try {
-            const response = await fetch('https://frostmarketing.no/api/contacts.php'); // Hent kontaktpersoner uavhengig av kunder
-            const data = await response.json();
-            const contactsByBusiness = {};
+      setContacts(contactsByBusiness);
+    } catch (error) {
+      console.error("Error fetching contacts:", error);
+    }
+  };
 
-            // Organisere kontaktpersonene etter business_id
-            data.forEach(contact => {
-                if (!contactsByBusiness[contact.business_id]) {
-                    contactsByBusiness[contact.business_id] = [];
-                }
-                contactsByBusiness[contact.business_id].push(contact);
-            });
+  // Fetch specific customer by ID
+  const fetchCustomer = async (id) => {
+    try {
+      const response = await fetch(`https://frostmarketing.no/api/customers.php?id=${id}`);
+      if (!response.ok) throw new Error("Customer not found");
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching customer:", error);
+      return null; // Return null if there's an error fetching the customer
+    }
+  };
 
-            setContacts(contactsByBusiness);
-        } catch (error) {
-            console.error('Error fetching contacts:', error);
+  // Delete a customer
+  const deleteCustomer = async (id) => {
+    try {
+      const response = await fetch(
+        `https://frostmarketing.no/api/customers.php?id=${id}`,
+        {
+          method: "DELETE",
         }
-    };
+      );
+      if (response.ok) {
+        setBusinesses((prev) => prev.filter((business) => business.id !== id)); // Update local state
+      }
+      return response.ok;
+    } catch (error) {
+      console.error("Error deleting customer:", error);
+      return false;
+    }
+  };
 
-    // Hent data ved komponentens oppstart
-    useEffect(() => {
-        setLoading(true); // Set loading til true før henting
-        fetchBusinesses();
-        fetchContacts();
-    }, [isCustomer]); // Denne useEffect vil bli trigget når isCustomer endres
+  // Fetch data on startup
+  useEffect(() => {
+    setLoading(true);
+    fetchBusinesses();
+    fetchContacts();
+  }, [isCustomer]);
 
-    useEffect(() => {
-        // Sjekk om vi har hentet både bedrifter og kontakter
-        if (businesses.length > 0 && Object.keys(contacts).length > 0) {
-            setLoading(false);
-        }
-    }, [businesses, contacts]); // Denne effekten sørger for at "loading" blir satt til false når begge er lastet
+  useEffect(() => {
+    if (businesses.length > 0 && Object.keys(contacts).length > 0) {
+      setLoading(false);
+    }
+  }, [businesses, contacts]);
 
-    return (
-        <ApiContext.Provider value={{ businesses, contacts, loading, setIsCustomer }}>
-            {children}
-        </ApiContext.Provider>
-    );
+  return (
+    <ApiContext.Provider
+      value={{
+        businesses,
+        contacts,
+        loading,
+        setIsCustomer,
+        fetchCustomer,
+        deleteCustomer,
+      }}
+    >
+      {children}
+    </ApiContext.Provider>
+  );
 };
