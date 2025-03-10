@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect} from "react";
 import { Link } from "react-router-dom";
 import { FaTrash } from "react-icons/fa";
 import "../style.css";
@@ -6,43 +6,26 @@ import "../style.css";
 function ExistingCustomers() {
   // Demo - can fetch from an API or parent context later
   const [businesses, setBusinesses] = useState([
-    {
-      id: 1,
-      business_name: "Al Inc",
-      is_customer: 1,
-      address: "Oslo, Norway",
-      status: "Active",
-      contacts: [
-        { id: 101, first_name: "Ben", last_name: "Benson", email: "ben@example.com" },
-      ],
-    },
-    {
-      id: 2,
-      business_name: "Tech",
-      is_customer: 1,
-      address: "Bergen, Norway",
-      status: "Pending",
-      contacts: [
-        { id: 102, first_name: "Tod", last_name: "Todson", email: "tod@example.com" },
-      ],
-    },
-    {
-      id: 3,
-      business_name: "Alpha Solutions",
-      is_customer: 1,
-      address: "Oslo, Norway",
-      status: "Active",
-      contacts: [],
-    },
-  
   ]);
 
   // Search & filter states
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
 
-  
-  // 1) Derived list after filters
+  useEffect(() => {
+    //API added
+    fetch("https://frostmarketing.no/api/customers.php")
+      .then((res) => res.json())
+      .then((data) => {
+        setBusinesses(data);
+        
+      })
+      .catch((err) => {
+        console.error("Error fetching existing customers:", err);
+      });
+  }, []);
+
+  // Filter logic
  
   const filteredBusinesses = businesses
     // Only show "existing" customers (is_customer === 1)
@@ -120,7 +103,6 @@ function ExistingCustomers() {
                     {business.business_name}
                   </Link>
                 </td>
-                <td>{business.created_at}</td>
                 <td>{business.address}</td>
                 <td className={`status ${business.status.toLowerCase()}`}>
                   {business.status}

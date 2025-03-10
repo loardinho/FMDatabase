@@ -2,59 +2,29 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 
 function CustomerDetails() {
-  const { id } = useParams();           // :id from  URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
 
-  //Demo
- 
-  const [customers] = useState([
-    {
-      id: 1,
-      business_name: "Al Inc",
-      is_customer: 1,
-      address: "Oslo, Norway",
-      status: "Active",
-      info: "Some notes about AL Inc",
-      contacts: [
-        { id: 101, first_name: "Ben", last_name: "Benson", email: "ben@example.com" },
-      ],
-    },
-    {
-      id: 2,
-      business_name: "Tech",
-      is_customer: 1,
-      address: "Bergen, Norway",
-      status: "Pending",
-      info: "Some notes about Tech",
-      contacts: [],
-    },
-    {
-      id: 3,
-      business_name: "Metro",
-      is_customer: 0,
-      address: "Trondheim, Norway",
-      status: "Negotiation",
-      info: "Potential client, in negotiations",
-      contacts: [
-        { id: 200, first_name: "Mel", last_name: "Melson", email: "mel@example.com" },
-      ],
-    },
-    
-  ]);
-
-  //  the *specific* customer 
   const [customer, setCustomer] = useState(null);
 
-  //  adding a new contact
+  // 1) Fetch the single customer using the "id" from the URL
+  useEffect(() => {
+    fetch(`https://frostmarketing.no/api/customers.php?id=${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setCustomer(data);
+      })
+      .catch(console.error);
+  }, [id]);
+
+  // STATES FOR NEW/EDIT CONTACT
   const [newContact, setNewContact] = useState({
     first_name: "",
     last_name: "",
     email: "",
     phone: "",
   });
-
-  // editing an existing contact
   const [editContactId, setEditContactId] = useState(null);
   const [editContactData, setEditContactData] = useState({
     first_name: "",
@@ -63,19 +33,11 @@ function CustomerDetails() {
     phone: "",
   });
 
-  // When component mounts or `id` changes, find the matching customer
-  useEffect(() => {
-    const found = customers.find((c) => c.id === Number(id));
-    setCustomer(found || null);
-  }, [id, customers]);
-
-  //  CUSTOMER-LEVEL ACTIONS
- 
-  // for demonstration
-
+  // Delete Customer 
   const handleDeleteCustomer = () => {
-    // In a real app, you'd remove the customer from your global state or call an API.
-    // Then navigate back to /dashboard/existing or /dashboard/potential
+    fetch(`https://frostmarketing.no/api/customers.php?id=${id}`
+
+    )
     if (location.pathname.includes("existing")) {
       navigate("/dashboard/existing");
     } else {
@@ -83,75 +45,60 @@ function CustomerDetails() {
     }
   };
 
-  
-  //   CONTACT LEVEL ACTIONS
-  
-
-  // Add contact
+ //Contact
   const handleAddContact = (e) => {
     e.preventDefault();
     if (!customer) return;
-
-    const newId = Date.now(); 
-    const updatedContacts = [
-      ...customer.contacts,
-      { id: newId, ...newContact },
-    ];
-
+    const newId = Date.now();
+    const updatedContacts = [...customer.contacts, { id: newId, ...newContact }];
     setCustomer({ ...customer, contacts: updatedContacts });
-
-    // Clear form
     setNewContact({ first_name: "", last_name: "", email: "", phone: "" });
   };
 
-  // Prepare edit mode
   const handleEditContact = (contact) => {
     setEditContactId(contact.id);
-    setEditContactData({
-      first_name: contact.first_name,
-      last_name: contact.last_name,
-      email: contact.email,
-      phone: contact.phone,
-    });
+    setEditContactData({ ...contact });
   };
 
-  // Save contact changes
   const handleSaveContact = (e) => {
     e.preventDefault();
     if (!customer) return;
-
     const updatedContacts = customer.contacts.map((c) =>
       c.id === editContactId ? { ...c, ...editContactData } : c
     );
-
     setCustomer({ ...customer, contacts: updatedContacts });
-    setEditContactId(null);  // exit edit mode
+    setEditContactId(null);
   };
 
-  // Delete ther contact
   const handleDeleteContact = (contactId) => {
     if (!customer) return;
     const updatedContacts = customer.contacts.filter((c) => c.id !== contactId);
     setCustomer({ ...customer, contacts: updatedContacts });
   };
 
-  // If no matching customer found
+
   if (!customer) {
     return <div>Loading or no customer found for ID: {id}</div>;
   }
 
+ 
   return (
     <div style={{ padding: "1rem" }}>
       <h2>Details for {customer.business_name}</h2>
-      <p><strong>Address:</strong> {customer.address}</p>
-      <p><strong>Status:</strong> {customer.status}</p>
-      <p><strong>Info:</strong> {customer.info}</p>
+      <p>
+        <strong>Address:</strong> {customer.address}
+      </p>
+      <p>
+        <strong>Status:</strong> {customer.status}
+      </p>
+      <p>
+        <strong>Info:</strong> {customer.info}
+      </p>
 
       <button onClick={handleDeleteCustomer}>Delete This Customer</button>
 
       <hr />
 
-      {/* CONTACTS SECTION */}
       <h3>Contacts</h3>
       <ul>
         {customer.contacts.map((contact) => (
@@ -197,8 +144,7 @@ function CustomerDetails() {
             ) : (
               // DISPLAY MODE
               <>
-                {contact.first_name} {contact.last_name} ({contact.email}, {contact.phone})
-                {"  "}
+                {contact.first_name} {contact.last_name} ({contact.email}, {contact.phone}){" "}
                 <button onClick={() => handleEditContact(contact)}>Edit</button>
                 <button onClick={() => handleDeleteContact(contact.id)}>Delete</button>
               </>
