@@ -51,6 +51,7 @@ function CustomerDetails() {
     first_name: "",
     last_name: "",
     email: "",
+    phone: "",
   });
 
   // editing an existing contact
@@ -59,6 +60,7 @@ function CustomerDetails() {
     first_name: "",
     last_name: "",
     email: "",
+    phone: "",
   });
 
   // When component mounts or `id` changes, find the matching customer
@@ -99,7 +101,7 @@ function CustomerDetails() {
     setCustomer({ ...customer, contacts: updatedContacts });
 
     // Clear form
-    setNewContact({ first_name: "", last_name: "", email: "" });
+    setNewContact({ first_name: "", last_name: "", email: "", phone: "" });
   };
 
   // Prepare edit mode
@@ -109,6 +111,7 @@ function CustomerDetails() {
       first_name: contact.first_name,
       last_name: contact.last_name,
       email: contact.email,
+      phone: contact.phone,
     });
   };
 
@@ -180,13 +183,21 @@ function CustomerDetails() {
                   }
                   placeholder="Email"
                 />
+                <input
+                  type="phone"
+                  value={editContactData.phone}
+                  onChange={(e) =>
+                    setEditContactData({ ...editContactData, phone: e.target.value })
+                  }
+                  placeholder="Phone"
+                />
                 <button type="submit">Save</button>
                 <button onClick={() => setEditContactId(null)}>Cancel</button>
               </form>
             ) : (
               // DISPLAY MODE
               <>
-                {contact.first_name} {contact.last_name} ({contact.email})
+                {contact.first_name} {contact.last_name} ({contact.email}, {contact.phone})
                 {"  "}
                 <button onClick={() => handleEditContact(contact)}>Edit</button>
                 <button onClick={() => handleDeleteContact(contact.id)}>Delete</button>
@@ -215,6 +226,12 @@ function CustomerDetails() {
           value={newContact.email}
           onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
           placeholder="Email"
+        />
+        <input
+          type="phone"
+          value={newContact.phone}
+          onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })}
+          placeholder="Phone"
         />
         <button type="submit">Add Contact</button>
       </form>
