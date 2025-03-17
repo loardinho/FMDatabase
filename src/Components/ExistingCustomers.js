@@ -90,14 +90,7 @@ function ExistingCustomers() {
                 <td className={`status ${business.status.toLowerCase()}`}>
                   {business.status}
                 </td>
-                <td>
-                  <button
-                    className="delete-btn"
-                    onClick={() => deleteBusiness(business.id)}
-                  >
-                    <FaTrash /> Delete
-                  </button>
-                </td>
+
               </tr>
             ))}
             {filteredBusinesses.length === 0 && (

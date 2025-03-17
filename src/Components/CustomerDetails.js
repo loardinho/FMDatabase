@@ -11,20 +11,24 @@ function CustomerDetails() {
   const [customer, setCustomer] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch customer data when component mounts
   useEffect(() => {
     const getCustomerData = async () => {
       try {
-        console.log("Fetching customer data for ID:", id);  // Debugging log
-        const data = await fetchCustomer(id);
-        console.log("Fetched customer data:", data);  // Log the fetched data
+        console.log("Fetching customer data for ID:", id);
+        const data = await fetchCustomer(id); // Fetch customer data
+        console.log("Fetched customer data:", data);
+
         if (Array.isArray(data)) {
-          setCustomer(data[0]);  // If it's an array, take the first customer
+          const foundCustomer = data.find(c => String(c.id) === String(id)); // Ensure ID is a string match
+          setCustomer(foundCustomer || null);
+        } else if (typeof data === "object" && data !== null) {
+          setCustomer(data);
         } else {
-          setCustomer(data);  // Otherwise, just set the data directly
+          setCustomer(null);
         }
       } catch (error) {
         console.error("Error fetching customer:", error);
+        setCustomer(null);
       } finally {
         setLoading(false);
       }
@@ -43,7 +47,7 @@ function CustomerDetails() {
   if (loading) return <div>Loading...</div>;
   if (!customer) return <div>Customer not found</div>;
 
-  console.log("Rendering customer:", customer);  // Debugging log to check the customer data
+  console.log("Rendering customer:", customer);
 
   return (
     <div style={{ padding: "1rem" }}>

@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaTrash } from "react-icons/fa";
 import "../style.css";
-import { ApiContext } from "../ApiContext"; // Import ApiContext
-
 
 function PotentialCustomers() {
   const [businesses, setBusinesses] = useState([]);
@@ -88,14 +85,6 @@ function PotentialCustomers() {
                 <td>{business.adresse ? business.adresse : "No address"}</td>
                 <td className={`status ${business.status.toLowerCase()}`}>
                   {business.status}
-                </td>
-                <td>
-                  <button
-                    className="delete-btn"
-                    onClick={() => deleteBusiness(business.id)}
-                  >
-                    <FaTrash /> Delete
-                  </button>
                 </td>
               </tr>
             ))}
