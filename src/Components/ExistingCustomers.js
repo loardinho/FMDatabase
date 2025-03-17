@@ -1,113 +1,40 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState } from "react";
+import { ApiContext } from "../contexts/ApiContext";
 import { Link } from "react-router-dom";
-import { FaTrash } from "react-icons/fa";
-import "../style.css";
-import { ApiContext } from "../ApiContext"; // Import ApiContext
-
+import "../styles/App.css";
 
 function ExistingCustomers() {
-  const [businesses, setBusinesses] = useState([]);
+  const { businesses, deleteCustomer } = useContext(ApiContext);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
 
-  useEffect(() => {
-    const fetchCustomers = () => {
-      fetch("https://frostmarketing.no/api/customers.php")
-        .then((res) => res.json())
-        .then((data) => {
-          setBusinesses(data);  // Sett data i tilstanden
-        })
-        .catch((err) => {
-          console.error("Error fetching customers:", err);
-        });
-    };
-    
-    fetchCustomers();  // Kall funksjonen for å hente data
-  }, []);  // Tom array betyr at denne effekten kun kjøres én gang ved første render
-  
+  // Filter for existing customers (is_customer === "1")
+  const existingCustomers = businesses.filter((business) => business.is_customer === "1");
 
-  const filteredBusinesses = businesses
-    .filter((b) => b.is_customer === "1")  // Check if is_customer is "1"
-    .filter((b) => {
-      const lowerSearch = searchTerm.toLowerCase();
-      return (
-        b.business_name.toLowerCase().includes(lowerSearch) ||
-        (b.adresse && b.adresse.toLowerCase().includes(lowerSearch))  // Use 'adresse' instead of 'address'
-      );
-    })
-    .filter((b) => {
-      if (!filterStatus) return true;
-      return b.status.toLowerCase() === filterStatus.toLowerCase();
-    });
-
-  const deleteBusiness = (id) => {
-    setBusinesses(businesses.filter((b) => b.id !== id));
-  };
+  // Filter customers based on search term
+  const filteredCustomers = existingCustomers.filter((business) =>
+    business.business_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="existing-customers-container">
-      <h2 className="section-title">Existing Customers</h2>
+    <div className="customer-list-container">
+      <h2>Existing Customers</h2>
+      
+      <input
+        type="text"
+        placeholder="Search by business name"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="search-input"
+      />
 
-      <div className="search-filter-container">
-        <input
-          type="text"
-          placeholder="Search by business name or address..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
-
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          className="filter-dropdown"
-        >
-          <option value="">All Statuses</option>
-          <option value="Active">Active</option>
-          <option value="Pending">Pending</option>
-        </select>
-      </div>
-
-      <div className="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Business</th>
-              <th>Contact</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredBusinesses.map((business) => (
-              <tr key={business.id}>
-                <td>
-                  <Link to={`/dashboard/existing/${business.id}`}>
-                    {business.business_name}
-                  </Link>
-                </td>
-                <td>{business.adresse ? business.adresse : "No address"}</td> {/* Handle null adresse */}
-                <td className={`status ${business.status.toLowerCase()}`}>
-                  {business.status}
-                </td>
-                <td>
-                  <button
-                    className="delete-btn"
-                    onClick={() => deleteBusiness(business.id)}
-                  >
-                    <FaTrash /> Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {filteredBusinesses.length === 0 && (
-              <tr>
-                <td colSpan="4">No matching customers found.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <ul className="customer-list">
+        {filteredCustomers.map((business) => (
+          <li key={business.id} className="customer-item">
+            <Link to={`/customer/${business.id}`}>{business.business_name}</Link>
+            <button onClick={() => deleteCustomer(business.id)}>Delete</button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
