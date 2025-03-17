@@ -48,9 +48,10 @@ function CustomerDetails() {
   return (
     <div style={{ padding: "1rem" }}>
       <h2>Details for {customer.business_name}</h2>
+      <p><strong>Business type:</strong> {customer.business_type}</p>
       <p><strong>Address:</strong> {customer.address}</p>
       <p><strong>Status:</strong> {customer.status}</p>
-      <p><strong>Info:</strong> {customer.info}</p>
+      <p><strong>Info:</strong> {customer.information}</p>
 
       <button onClick={handleDeleteCustomer}>Delete This Customer</button>
     </div>
