@@ -47,45 +47,43 @@ function PotentialCustomers() {
       <div className="search-filter-container">
         <input
           type="text"
-          placeholder="Search by business name or address..."
+          placeholder="Search name / address"
+          className="search-input"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
         />
-
         <select
+          className="filter-dropdown"
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="filter-dropdown"
         >
           <option value="">All Statuses</option>
-          <option value="Active">Active</option>
+          <option value="Lead">Lead</option>
           <option value="Pending">Pending</option>
         </select>
       </div>
 
       <div className="table-wrapper">
-        <table>
+        <table className="table">
           <thead>
             <tr>
               <th>Business</th>
-              <th>Contact</th>
+              <th>Address</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filteredBusinesses.map((business) => (
-              <tr key={business.id}>
+            {filteredBusinesses.map((b) => (
+              <tr key={b.id}>
                 <td>
-                  <Link to={`/dashboard/potential/${business.id}`}>
-                    {business.business_name}
+                  <Link to={`/dashboard/potential/${b.id}`}>
+                    {b.business_name}
                   </Link>
                 </td>
-                <td>{business.adresse ? business.adresse : "No address"}</td>
-                <td className={`status ${business.status.toLowerCase()}`}>
-                  {business.status}
-                </td>
+                <td>{b.address || b.adresse || "No address"}</td>
+                <td>{b.status}</td>
+                <td>{/* optional actions */}</td>
               </tr>
             ))}
             {filteredBusinesses.length === 0 && (
@@ -99,5 +97,4 @@ function PotentialCustomers() {
     </div>
   );
 }
-
 export default PotentialCustomers;

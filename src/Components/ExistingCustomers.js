@@ -33,53 +33,60 @@ function ExistingCustomers() {
       return b.status?.toLowerCase() === filterStatus.toLowerCase();
     });
 
-  return (
-    <div>
-      <h2>Existing Customers</h2>
-      <div>
-        <input
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search name / address"
-        />
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-        >
-          <option value="">All Statuses</option>
-          <option value="Active">Active</option>
-          <option value="Pending">Pending</option>
-        </select>
+    return (
+      <div className="existing-customers-container">
+        <h2 className="section-title">Existing Customers</h2>
+  
+        {/* 1) search + filter container */}
+        <div className="search-filter-container">
+          <input
+            type="text"
+            placeholder="Search name / address"
+            className="search-input"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <select
+            className="filter-dropdown"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="">All Statuses</option>
+            <option value="Active">Active</option>
+            <option value="Pending">Pending</option>
+          </select>
+        </div>
+  
+        {/* 2) wrap the table */}
+        <div className="table-wrapper">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Business</th>
+                <th>Address</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((b) => (
+                <tr key={b.id}>
+                  <td>
+                    <Link to={`/dashboard/existing/${b.id}`}>{b.business_name}</Link>
+                  </td>
+                  <td>{b.address || "No address"}</td>
+                  <td>{b.status}</td>
+                </tr>
+              ))}
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan="3">No matching customers found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Business</th>
-            <th>Address</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filtered.map((b) => (
-            <tr key={b.id}>
-              <td>
-                <Link to={`/dashboard/existing/${b.id}`}>{b.business_name}</Link>
-              </td>
-              <td>{b.address || "No address"}</td>
-              <td>{b.status}</td>
-            </tr>
-          ))}
-
-          {filtered.length === 0 && (
-            <tr>
-              <td colSpan="3">No matching customers found.</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
-  );
-}
+    );
+  }
 
 export default ExistingCustomers;

@@ -16,9 +16,9 @@ body {
 }
 
 h2 {
-  font-size: 22px;
+  font-size: 30px;
   font-weight: 600;
-  color: #222;
+  color: #000000;
   margin-bottom: 15px;
 }
 
@@ -64,25 +64,30 @@ h2 {
   display: inline-block;
 }
 
-.status-active {
-  background: #1b8b50;
-  color: #fff;
+
+.search-filter-container {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
-.status-pending {
-  background: #f39c12;
-  color: #fff;
+.search-input {
+  flex: 1;
+  padding: 0.5rem;
 }
 
-.status-lead {
-  background: #0177b9;
-  color: #fff;
+.filter-dropdown {
+  padding: 0.5rem;
 }
 
-.status-negotiation {
-  background: #d9534f;
-  color: #fff;
+.table-wrapper {
+  overflow-x: auto; /* optional */
+  margin-top: 1rem;
 }
+
+/* etc. match whatever you have for existing customers */
+
+
 
 .btn-delete {
   background: #a03834;
@@ -111,10 +116,10 @@ h2 {
 .login-container {
   max-width: 400px;
   margin: 100px auto;
-  padding: 20px;
+  padding: 50px;
   background: white;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(33, 54, 82, 0.1);
+  border-radius: 30px;
   text-align: center;
 }
 
@@ -127,16 +132,16 @@ h2 {
   padding: 10px;
   margin: 10px 0;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 30px;
 }
 
 .login-container button {
-  width: 100%;
+  width: 60%;
   padding: 10px;
-  background: #2a5bd7;
+  background: #232e4a;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 30px;
   cursor: pointer;
 }
 
