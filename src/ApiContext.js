@@ -1,72 +1,53 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState } from "react";
 
-// Create the context
+
 export const ApiContext = createContext();
 
-// ApiProvider component
 export const ApiProvider = ({ children }) => {
-  const [businesses, setBusinesses] = useState([]);
-  const [contacts, setContacts] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [isCustomer, setIsCustomer] = useState(1); // Default to 1 (customers)
-
-  // Fetch businesses (customers or potential customers)
-  const fetchBusinesses = async () => {
+  
+  const fetchCustomersList = async (isCustomerVal = 1) => {
     try {
       const response = await fetch(
-        `https://frostmarketing.no/api/customers.php?is_customer=${isCustomer}`
+        `https://frostmarketing.no/api/customers.php?is_customer=${isCustomerVal}`
       );
       const data = await response.json();
-      setBusinesses(data);
+      return data; 
     } catch (error) {
-      console.error("Error fetching businesses:", error);
+      console.error("Error fetching customer list:", error);
+      return [];
     }
   };
 
-  // Fetch contacts
-  const fetchContacts = async () => {
-    try {
-      const response = await fetch("https://frostmarketing.no/api/contacts.php");
-      const data = await response.json();
-      const contactsByBusiness = {};
-
-      data.forEach((contact) => {
-        if (!contactsByBusiness[contact.business_id]) {
-          contactsByBusiness[contact.business_id] = [];
-        }
-        contactsByBusiness[contact.business_id].push(contact);
-      });
-
-      setContacts(contactsByBusiness);
-    } catch (error) {
-      console.error("Error fetching contacts:", error);
-    }
-  };
-
-  // Fetch specific customer by ID
   const fetchCustomer = async (id) => {
     try {
       const response = await fetch(`https://frostmarketing.no/api/customers.php?id=${id}`);
       if (!response.ok) throw new Error("Customer not found");
-      return await response.json();
+      return await response.json(); 
     } catch (error) {
-      console.error("Error fetching customer:", error);
-      return null; // Return null if there's an error fetching the customer
+      console.error("Error fetching single customer:", error);
+      return null;
     }
   };
 
-  // Delete a customer
+  const fetchContacts = async (businessId) => {
+    try {
+      const response = await fetch(
+        `https://frostmarketing.no/api/contacts.php?business_id=${businessId}`
+      );
+      if (!response.ok) throw new Error("Contacts fetch failed");
+      return await response.json(); 
+    } catch (error) {
+      console.error("Error fetching contacts:", error);
+      return [];
+    }
+  };
+
   const deleteCustomer = async (id) => {
     try {
       const response = await fetch(
         `https://frostmarketing.no/api/customers.php?id=${id}`,
-        {
-          method: "DELETE",
-        }
+        { method: "DELETE" }
       );
-      if (response.ok) {
-        setBusinesses((prev) => prev.filter((business) => business.id !== id)); // Update local state
-      }
       return response.ok;
     } catch (error) {
       console.error("Error deleting customer:", error);
@@ -74,27 +55,13 @@ export const ApiProvider = ({ children }) => {
     }
   };
 
-  // Fetch data on startup
-  useEffect(() => {
-    setLoading(true);
-    fetchBusinesses();
-    fetchContacts();
-  }, [isCustomer]);
-
-  useEffect(() => {
-    if (businesses.length > 0 && Object.keys(contacts).length > 0) {
-      setLoading(false);
-    }
-  }, [businesses, contacts]);
-
   return (
     <ApiContext.Provider
       value={{
-        businesses,
-        contacts,
-        loading,
-        setIsCustomer,
+        
+        fetchCustomersList,
         fetchCustomer,
+        fetchContacts,
         deleteCustomer,
       }}
     >

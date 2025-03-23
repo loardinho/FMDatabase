@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaTrash } from "react-icons/fa";
-import "../style.css";
-import { ApiContext } from "../ApiContext"; // Import ApiContext
-
 
 function ExistingCustomers() {
   const [businesses, setBusinesses] = useState([]);
@@ -11,56 +7,44 @@ function ExistingCustomers() {
   const [filterStatus, setFilterStatus] = useState("");
 
   useEffect(() => {
-    const fetchCustomers = () => {
-      fetch("https://frostmarketing.no/api/customers.php")
-        .then((res) => res.json())
-        .then((data) => {
-          setBusinesses(data);  // Sett data i tilstanden
-        })
-        .catch((err) => {
-          console.error("Error fetching customers:", err);
-        });
-    };
-    
-    fetchCustomers();  // Kall funksjonen for å hente data
-  }, []);  // Tom array betyr at denne effekten kun kjøres én gang ved første render
-  
+    async function loadExisting() {
+      try {
+        const res = await fetch("https://frostmarketing.no/api/customers.php?is_customer=1");
+        const data = await res.json();
+        console.log("Loaded existing customers:", data);
+        setBusinesses(data);
+      } catch (err) {
+        console.error("Error fetching existing customers:", err);
+      }
+    }
+    loadExisting();
+  }, []);
 
-  const filteredBusinesses = businesses
-    .filter((b) => b.is_customer === "1")  // Check if is_customer is "1"
+  const filtered = businesses
     .filter((b) => {
-      const lowerSearch = searchTerm.toLowerCase();
+      const lower = searchTerm.toLowerCase();
       return (
-        b.business_name.toLowerCase().includes(lowerSearch) ||
-        (b.adresse && b.adresse.toLowerCase().includes(lowerSearch))  // Use 'adresse' instead of 'address'
+        b.business_name.toLowerCase().includes(lower) ||
+        b.address?.toLowerCase().includes(lower)
       );
     })
     .filter((b) => {
       if (!filterStatus) return true;
-      return b.status.toLowerCase() === filterStatus.toLowerCase();
+      return b.status?.toLowerCase() === filterStatus.toLowerCase();
     });
 
-  const deleteBusiness = (id) => {
-    setBusinesses(businesses.filter((b) => b.id !== id));
-  };
-
   return (
-    <div className="existing-customers-container">
-      <h2 className="section-title">Existing Customers</h2>
-
-      <div className="search-filter-container">
+    <div>
+      <h2>Existing Customers</h2>
+      <div>
         <input
-          type="text"
-          placeholder="Search by business name or address..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
+          placeholder="Search name / address"
         />
-
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="filter-dropdown"
         >
           <option value="">All Statuses</option>
           <option value="Active">Active</option>
@@ -68,39 +52,32 @@ function ExistingCustomers() {
         </select>
       </div>
 
-      <div className="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Business</th>
-              <th>Contact</th>
-              <th>Status</th>
-              <th>Actions</th>
+      <table>
+        <thead>
+          <tr>
+            <th>Business</th>
+            <th>Address</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filtered.map((b) => (
+            <tr key={b.id}>
+              <td>
+                <Link to={`/dashboard/existing/${b.id}`}>{b.business_name}</Link>
+              </td>
+              <td>{b.address || "No address"}</td>
+              <td>{b.status}</td>
             </tr>
-          </thead>
-          <tbody>
-            {filteredBusinesses.map((business) => (
-              <tr key={business.id}>
-                <td>
-                  <Link to={`/dashboard/existing/${business.id}`}>
-                    {business.business_name}
-                  </Link>
-                </td>
-                <td>{business.adresse ? business.adresse : "No address"}</td> {/* Handle null adresse */}
-                <td className={`status ${business.status.toLowerCase()}`}>
-                  {business.status}
-                </td>
+          ))}
 
-              </tr>
-            ))}
-            {filteredBusinesses.length === 0 && (
-              <tr>
-                <td colSpan="4">No matching customers found.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+          {filtered.length === 0 && (
+            <tr>
+              <td colSpan="3">No matching customers found.</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }
