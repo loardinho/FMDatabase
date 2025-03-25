@@ -67,7 +67,7 @@ function CustomerDetails() {
         <ul>
           {contacts.map((c) => (
             <li key={c.id}>
-              {c.first_name} {c.last_name} ({c.email}, {c.phone})
+              {c.first_name} {c.last_name} ({c.position}) ({c.email}, {c.phone}) [{c.information}]
             </li>
           ))}
         </ul>
