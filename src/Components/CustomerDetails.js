@@ -57,6 +57,7 @@ function CustomerDetails() {
   return (
     <div style={{ padding: "1rem" }}>
       <h2>Details for {customer.business_name}</h2>
+      <p><strong>Business Type:</strong> {customer.business_type}</p>
       <p><strong>Address:</strong> {customer.address}</p>
       <p><strong>Status:</strong> {customer.status}</p>
       <p><strong>Info:</strong> {customer.information}</p>
@@ -66,7 +67,7 @@ function CustomerDetails() {
         <ul>
           {contacts.map((c) => (
             <li key={c.id}>
-              {c.first_name} {c.last_name} ({c.email})
+              {c.first_name} {c.last_name} ({c.email}, {c.phone})
             </li>
           ))}
         </ul>
