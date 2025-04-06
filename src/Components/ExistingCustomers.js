@@ -7,7 +7,6 @@ import AddCustomerForm from "./AddCustomerForm";
 function ExistingCustomers() {
   const [businesses, setBusinesses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
 
   useEffect(() => {
     async function loadExisting() {
@@ -31,10 +30,7 @@ function ExistingCustomers() {
         b.address?.toLowerCase().includes(lower)
       );
     })
-    .filter((b) => {
-      if (!filterStatus) return true;
-      return b.status?.toLowerCase() === filterStatus.toLowerCase();
-    });
+
 
   // NEW: a helper function to re-fetch the existing customers
   // after we successfully add a new one in the form
@@ -67,15 +63,6 @@ function ExistingCustomers() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <select
-          className="filter-dropdown"
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-        >
-          <option value="">All Statuses</option>
-          <option value="Active">Active</option>
-          <option value="Pending">Pending</option>
-        </select>
       </div>
 
       <div className="table-wrapper">

@@ -67,18 +67,6 @@ function AddCustomerForm({ isCustomerValue, onSuccess }) {
         />
       </div>
 
-      <div className="form-group">
-        <label className="form-label">Status:</label>
-        <select
-          className="form-select"
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-        >
-          <option value="Active">Active</option>
-          <option value="Pending">Pending</option>
-        </select>
-      </div>
-
       <button type="submit" className="form-button">
         Add Customer
       </button>

@@ -1,48 +1,62 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../style.css";
+import AddCustomerForm from "./AddCustomerForm";
+
+
 
 function PotentialCustomers() {
   const [businesses, setBusinesses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
 
   useEffect(() => {
-    const fetchBusinesses = () => {
-      fetch("https://frostmarketing.no/api/customers.php")
-        .then((res) => res.json())
-        .then((data) => {
-          setBusinesses(data);  // Sett data i tilstanden
-        })
-        .catch((err) => {
-          console.error("Error fetching businesses:", err);
-        });
-    };
-    
-    fetchBusinesses();  // Kall funksjonen for å hente data
-  }, []);  // Tom array betyr at denne effekten kun kjøres én gang ved første render
-  
-  const filteredBusinesses = businesses
-    .filter((b) => b.is_customer !== "1")  // Only show potential customers (is_customer !== "1")
+    async function loadPotential() {
+      try {
+        const res = await fetch("https://frostmarketing.no/api/customers.php?is_customer=0");
+        const data = await res.json();
+        console.log("Loaded potential customers:", data);
+        setBusinesses(data);
+      } catch (err) {
+        console.error("Error fetching potential customers:", err);
+      }
+    }
+    loadPotential();
+  }, []);
+
+  const filtered = businesses
     .filter((b) => {
-      const lowerSearch = searchTerm.toLowerCase();
+      const lower = searchTerm.toLowerCase();
       return (
-        b.business_name.toLowerCase().includes(lowerSearch) ||
-        (b.adresse && b.adresse.toLowerCase().includes(lowerSearch))  // Use 'adresse' instead of 'address'
+        b.business_name.toLowerCase().includes(lower) ||
+        b.address?.toLowerCase().includes(lower)
       );
     })
-    .filter((b) => {
-      if (!filterStatus) return true;
-      return b.status.toLowerCase() === filterStatus.toLowerCase();
-    });
 
-  const deleteBusiness = (id) => {
-    setBusinesses(businesses.filter((b) => b.id !== id));
+
+  // NEW: a helper function to re-fetch the existing customers
+  // after we successfully add a new one in the form
+  const reloadPotential = async () => {
+    try {
+      const res = await fetch("https://frostmarketing.no/api/customers.php?is_customer=0");
+      const data = await res.json();
+      setBusinesses(data);
+    } catch (err) {
+      console.error("Error re-fetching potential customers:", err);
+    }
   };
+
+
 
   return (
     <div className="potential-customers-container">
       <h2 className="section-title">Potential Customers</h2>
+
+      {}
+      <AddCustomerForm 
+        isCustomerValue={0}     
+        onSuccess={reloadPotential}  
+      />
+      {}
 
       <div className="search-filter-container">
         <input
@@ -52,15 +66,6 @@ function PotentialCustomers() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <select
-          className="filter-dropdown"
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-        >
-          <option value="">All Statuses</option>
-          <option value="Lead">Lead</option>
-          <option value="Pending">Pending</option>
-        </select>
       </div>
 
       <div className="table-wrapper">
@@ -74,7 +79,7 @@ function PotentialCustomers() {
             </tr>
           </thead>
           <tbody>
-            {filteredBusinesses.map((b) => (
+            {filtered.map((b) => (
               <tr key={b.id}>
                 <td>
                   <Link to={`/dashboard/potential/${b.id}`}>
@@ -86,7 +91,7 @@ function PotentialCustomers() {
                 <td>{/* optional actions */}</td>
               </tr>
             ))}
-            {filteredBusinesses.length === 0 && (
+            {filtered.length === 0 && (
               <tr>
                 <td colSpan="4">No matching potential customers found.</td>
               </tr>
