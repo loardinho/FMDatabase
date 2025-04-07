@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/FMDatabase/static/css/main.11a30473.css",
+    "main.js": "/FMDatabase/static/js/main.cb3c2c33.js",
+    "index.html": "/FMDatabase/index.html",
+    "main.11a30473.css.map": "/FMDatabase/static/css/main.11a30473.css.map",
+    "main.cb3c2c33.js.map": "/FMDatabase/static/js/main.cb3c2c33.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.11a30473.css",
+    "static/js/main.cb3c2c33.js"
+  ]
+}
