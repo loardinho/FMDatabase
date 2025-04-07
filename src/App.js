@@ -16,7 +16,7 @@ function App() {
   return (
     <ApiProvider> {/* Wrap the app with ApiProvider */}
       {/* Add the basename prop here, matching your repository name */}
-      <Router basename="/Database"> {/* <--- MODIFIED THIS LINE */}
+      <Router basename="/FMDatabase"> {/* <--- MODIFIED THIS LINE */}
         <Routes>
           {/* Login page at the effective root */}
           <Route path="/" element={<LoginPage />} />
