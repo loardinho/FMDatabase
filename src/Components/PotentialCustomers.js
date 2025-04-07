@@ -1,139 +1,128 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } // Import useContext
+  from "react";
 import { Link } from "react-router-dom";
-import { FaTrash } from "react-icons/fa";
-import "../style.css";
+import "../style.css"; // Assuming path is correct
+import AddCustomerForm from "./AddCustomerForm";
+import { ApiContext } from "../ApiContext"; // Import ApiContext (Adjust path if needed)
 
 function PotentialCustomers() {
-  const [businesses, setBusinesses] = useState([
-    {
-      id: 3,
-      business_name: "Tech Inc",
-      is_customer: 0,
-      address: "Stavanger, Norway",
-      status: "Lead",
-      contacts: [
-        { id: 301, first_name: "Terry", last_name: "Terrison", email: "terry@example.com" },
-      ],
-    },
-    {
-      id: 4,
-      business_name: "Metro",
-      is_customer: 0,
-      address: "Trondheim, Norway",
-      status: "Negotiation",
-      contacts: [
-        { id: 302, first_name: "Mel", last_name: "Melson", email: "mel@example.com" },
-      ],
-    },
-  ]);
-
-  // For search filter logic
+  const [businesses, setBusinesses] = useState([]); // Initial state is correctly an array
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
+  const [loading, setLoading] = useState(true); // Add loading state
+  const [error, setError] = useState(''); // Add error state
 
-  // Filter logic 
-  const filteredBusinesses = businesses
-    .filter((b) => b.is_customer === 0)
-    .filter((b) => {
-      const lowerSearch = searchTerm.toLowerCase();
-      return (
-        b.business_name.toLowerCase().includes(lowerSearch) ||
-        b.address.toLowerCase().includes(lowerSearch)
-      );
-    })
-    .filter((b) => {
-      if (!filterStatus) return true;
-      return b.status.toLowerCase() === filterStatus.toLowerCase();
-    });
+  // Use the fetch function from context
+  const { fetchCustomersList } = useContext(ApiContext);
 
-  const deleteBusiness = (id) => {
-    setBusinesses(businesses.filter((b) => b.id !== id));
+  // Function to load/reload data using context function
+  const loadPotential = async () => {
+    setLoading(true);
+    setError(''); // Clear previous errors
+    try {
+      // Call context function with '0' for potential customers
+      const data = await fetchCustomersList(0);
+      // The context function should handle credentials and basic errors, returning [] on failure
+      if (Array.isArray(data)) {
+          console.log("Loaded potential customers:", data);
+          setBusinesses(data);
+      } else {
+          console.error("Received non-array data from fetchCustomersList(0):", data);
+          setError("Failed to load potential customer data correctly.");
+          setBusinesses([]);
+      }
+    } catch (err) {
+      // Catch errors from the async call itself
+      console.error("Error calling fetchCustomersList(0):", err);
+      setError("An error occurred while fetching potential customers.");
+      setBusinesses([]);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // Initial load
+  useEffect(() => {
+    loadPotential();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchCustomersList]); // Depend on the context function instance
+
+
+  // Filtering - Add check to ensure businesses is an array before filtering
+  const filtered = Array.isArray(businesses) ? businesses.filter((b) => {
+      const lower = searchTerm.toLowerCase();
+      // Ensure properties exist before calling toLowerCase
+      // Using 'adresse' as that's likely what PHP script uses based on previous files
+      const nameMatch = b.business_name && b.business_name.toLowerCase().includes(lower);
+      const addressMatch = b.adresse && b.adresse.toLowerCase().includes(lower);
+      return nameMatch || addressMatch;
+    }) : []; // Default to empty array if businesses is not an array
+
 
   return (
     <div className="potential-customers-container">
-      <h2 className="section-title potential">Potential Customers</h2>
-      
-      {}
+      <h2 className="section-title">Potential Customers</h2>
+
+      {/* Add Customer Form */}
+      <AddCustomerForm
+        isCustomerValue={0} // Set for potential customer
+        onSuccess={loadPotential} // Call loadPotential to refresh list
+      />
+
+      {/* Search Input */}
       <div className="search-filter-container">
         <input
           type="text"
-          placeholder="Search by business name or addr"
+          placeholder="Search name / address"
+          className="search-input"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
+          disabled={loading} // Disable search while loading
         />
-
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          className="filter-dropdown"
-        >
-          <option value="">All Statuses</option>
-          <option value="Lead">Lead</option>
-          <option value="Negotiation">Negotiation</option>
-          <option value="Pending">Pending</option>
-          <option value="Active">Active</option>
-        </select>
       </div>
 
-      {}
-      <div className="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              {/* Match your existing table columns exactly */}
-              <th>Business</th>
-              <th>Contact</th>
-              <th>Status</th>
-              <th>Address</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredBusinesses.map((business) => (
-              <tr key={business.id}>
-                {}
-                <td>
-                  <Link to={`/dashboard/potential/${business.id}`}>
-                    {business.business_name}
-                  </Link>
-                </td>
-
-                {}
-                <td>
-                  {business.contacts.map((contact) => (
-                    <div key={contact.id}>
-                      {contact.first_name} {contact.last_name} - {contact.email}
-                    </div>
-                  ))}
-                </td>
-
-                <td className={`status ${business.status.toLowerCase()}`}>
-                  {business.status}
-                </td>
-
-                <td>{business.address}</td>
-
-                <td>
-                  <button
-                    className="delete-btn"
-                    onClick={() => deleteBusiness(business.id)}
-                  >
-                    <FaTrash /> Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-
-            {filteredBusinesses.length === 0 && (
+      {/* Loading / Error / Table Display */}
+      {loading ? (
+        <p>Loading potential customers...</p>
+      ) : error ? (
+        <p className="error-message">{error}</p>
+      ) : (
+        <div className="table-wrapper">
+          <table className="table">
+            <thead>
               <tr>
-                <td colSpan="5">No matching potential customers found.</td>
+                <th>Business</th>
+                <th>Address</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {filtered.length > 0 ? (
+                filtered.map((b) => (
+                  <tr key={b.id}>
+                    <td>
+                      {/* Link uses 'id', ensure routes are for /dashboard/potential/:id */}
+                      <Link to={`/dashboard/potential/${b.id}`}>
+                        {b.business_name}
+                      </Link>
+                    </td>
+                     {/* Display 'adresse' from PHP, or fallback */}
+                    <td>{b.adresse || "No address"}</td>
+                    <td>{b.status || "N/A"}</td>
+                    <td>{/* optional actions */}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4">
+                     {searchTerm ? "No matching potential customers found." : "No potential customers found."}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

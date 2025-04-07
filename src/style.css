@@ -1,7 +1,7 @@
 body {
   font-family: 'Inter', sans-serif;
   background-color: #f4f7fc;
-  color: #333;
+  color: #000000;
   margin: 0;
   padding: 20px;
 }
@@ -16,14 +16,14 @@ body {
 }
 
 h2 {
-  font-size: 22px;
+  font-size: 30px;
   font-weight: 600;
-  color: #222;
+  color: #000000;
   margin-bottom: 15px;
 }
 
 .section-title {
-  border-bottom: 3px solid #2a5bd7;
+  border-bottom: 3px solid #24396e;
   padding-bottom: 8px;
   margin-bottom: 15px;
 }
@@ -42,7 +42,7 @@ h2 {
 }
 
 .table thead {
-  background: #2a5bd7;
+  background: #24386b;
   color: #fff;
   font-weight: 600;
 }
@@ -64,25 +64,30 @@ h2 {
   display: inline-block;
 }
 
-.status-active {
-  background: #1b8b50;
-  color: #fff;
+
+.search-filter-container {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
-.status-pending {
-  background: #f39c12;
-  color: #fff;
+.search-input {
+  flex: 1;
+  padding: 0.5rem;
 }
 
-.status-lead {
-  background: #0177b9;
-  color: #fff;
+.filter-dropdown {
+  padding: 0.5rem;
 }
 
-.status-negotiation {
-  background: #d9534f;
-  color: #fff;
+.table-wrapper {
+  overflow-x: auto; /* optional */
+  margin-top: 1rem;
 }
+
+/* etc. match whatever you have for existing customers */
+
+
 
 .btn-delete {
   background: #a03834;
@@ -111,10 +116,10 @@ h2 {
 .login-container {
   max-width: 400px;
   margin: 100px auto;
-  padding: 20px;
+  padding: 50px;
   background: white;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(33, 54, 82, 0.1);
+  border-radius: 30px;
   text-align: center;
 }
 
@@ -127,16 +132,16 @@ h2 {
   padding: 10px;
   margin: 10px 0;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 30px;
 }
 
 .login-container button {
-  width: 100%;
+  width: 60%;
   padding: 10px;
-  background: #2a5bd7;
+  background: #232e4a;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 30px;
   cursor: pointer;
 }
 
@@ -192,7 +197,7 @@ h2 {
 }
 
 .nav-link {
-  background-color: #3f51b5; 
+  background-color: #2a3052; 
   color: #fff;
 }
 .nav-link:hover {
@@ -302,4 +307,64 @@ main {
 .filter-dropdown {
   padding: 0.5rem;
   
+}
+
+
+
+/* ADD Customer form csss*/
+
+.add-customer-form {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: #f2f2f2; 
+  border: 1px solid #ccc;    
+  border-radius: 8px;
+  max-width: 400px;          
+}
+
+.add-customer-form .form-title {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+.form-group {
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+}
+
+.form-label {
+  width: 110px; 
+  font-weight: bold;
+  margin-right: 0.5rem;
+}
+
+.form-input {
+  flex: 1; 
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.form-select {
+  flex: 1;
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.form-button {
+  margin-top: 0.5rem;
+  background-color: #475f79; 
+  color: #fff;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.form-button:hover {
+  background-color: #0b1e31;
 }

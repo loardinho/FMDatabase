@@ -1,224 +1,350 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { ApiContext } from "../ApiContext"; // Adjust path if needed
 
 function CustomerDetails() {
-  const { id } = useParams();           // :id from  URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
 
-  //Demo
- 
-  const [customers] = useState([
-    {
-      id: 1,
-      business_name: "Al Inc",
-      is_customer: 1,
-      address: "Oslo, Norway",
-      status: "Active",
-      info: "Some notes about AL Inc",
-      contacts: [
-        { id: 101, first_name: "Ben", last_name: "Benson", email: "ben@example.com" },
-      ],
-    },
-    {
-      id: 2,
-      business_name: "Tech",
-      is_customer: 1,
-      address: "Bergen, Norway",
-      status: "Pending",
-      info: "Some notes about Tech",
-      contacts: [],
-    },
-    {
-      id: 3,
-      business_name: "Metro",
-      is_customer: 0,
-      address: "Trondheim, Norway",
-      status: "Negotiation",
-      info: "Potential client, in negotiations",
-      contacts: [
-        { id: 200, first_name: "Mel", last_name: "Melson", email: "mel@example.com" },
-      ],
-    },
-    
-  ]);
+  // Destructure ALL functions from context now
+  const {
+    fetchCustomer,
+    fetchContacts,
+    deleteCustomer, // For the business
+    updateCustomer, // For the business
+    updateContact,  // For contacts
+    deleteContact   // For contacts
+  } = useContext(ApiContext);
 
-  //  the *specific* customer 
+  // --- State ---
   const [customer, setCustomer] = useState(null);
+  const [contacts, setContacts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(''); // General errors
 
-  //  adding a new contact
-  const [newContact, setNewContact] = useState({
-    first_name: "",
-    last_name: "",
-    email: "",
+  // State for Business Edit Mode
+  const [isEditing, setIsEditing] = useState(false);
+
+  // State for editable Business fields
+  const [editedName, setEditedName] = useState('');
+  const [editedAddress, setEditedAddress] = useState('');
+  const [editedStatusText, setEditedStatusText] = useState('');
+  const [editedInformation, setEditedInformation] = useState('');
+  const [editedBusinessType, setEditedBusinessType] = useState('');
+
+  // --- State for Contact Editing ---
+  const [editingContactId, setEditingContactId] = useState(null); // ID of contact being edited, or null
+  const [editedContactData, setEditedContactData] = useState({ // Temp data for contact form
+      first_name: '', last_name: '', position: '', email: '', phone: '', information: ''
   });
+  const [contactError, setContactError] = useState(''); // Errors specific to contact actions
 
-  // editing an existing contact
-  const [editContactId, setEditContactId] = useState(null);
-  const [editContactData, setEditContactData] = useState({
-    first_name: "",
-    last_name: "",
-    email: "",
-  });
 
-  // When component mounts or `id` changes, find the matching customer
+  // --- Effects ---
+
+  // Combined Fetching Effect for Customer and Contacts
   useEffect(() => {
-    const found = customers.find((c) => c.id === Number(id));
-    setCustomer(found || null);
-  }, [id, customers]);
+    let isMounted = true;
+    async function loadData() {
+      setLoading(true);
+      setError('');
+      setContactError('');
+      try {
+        const customerData = await fetchCustomer(id);
+        if (isMounted) {
+          if (customerData && !customerData.error) {
+            setCustomer(customerData);
+            // Initialize edit fields for customer when data loads
+            setEditedName(customerData.business_name || '');
+            setEditedAddress(customerData.adresse || '');
+            setEditedStatusText(customerData.status || '');
+            setEditedInformation(customerData.information || '');
+            setEditedBusinessType(customerData.business_type || '');
+          } else {
+            setError(customerData?.error || 'Failed to load customer details.');
+            setCustomer(null);
+          }
+        }
 
-  //  CUSTOMER-LEVEL ACTIONS
- 
-  // for demonstration
+        // Only fetch contacts if customer loaded successfully
+        if (customerData && !customerData.error) {
+            const contactsData = await fetchContacts(id);
+            if (isMounted) {
+              if (Array.isArray(contactsData)) {
+                 setContacts(contactsData);
+              } else {
+                 console.error("Received non-array data for contacts:", contactsData);
+                 setContacts([]);
+              }
+            }
+        } else {
+             if(isMounted) setContacts([]); // Clear contacts if customer fails to load
+        }
 
-  const handleDeleteCustomer = () => {
-    // In a real app, you'd remove the customer from your global state or call an API.
-    // Then navigate back to /dashboard/existing or /dashboard/potential
-    if (location.pathname.includes("existing")) {
-      navigate("/dashboard/existing");
+      } catch (err) {
+        console.error("Error loading data:", err);
+        if (isMounted) {
+          setError('An error occurred while loading data.');
+          setCustomer(null);
+          setContacts([]);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadData();
+
+    return () => {
+      isMounted = false;
+    };
+    // Only re-run if the main business ID changes
+  }, [id, fetchCustomer, fetchContacts]);
+
+
+  // --- BUSINESS Handlers ---
+
+  const handleEditToggle = () => {
+    if (!isEditing && customer) {
+      setEditedName(customer.business_name || '');
+      setEditedAddress(customer.adresse || '');
+      setEditedStatusText(customer.status || '');
+      setEditedInformation(customer.information || '');
+      setEditedBusinessType(customer.business_type || '');
+      setError('');
     } else {
-      navigate("/dashboard/potential");
+         setError('');
+    }
+    setIsEditing(!isEditing);
+  };
+
+  const handleSave = async () => {
+    if (!customer) return;
+    setError('');
+    const updatedData = {
+      business_name: editedName,
+      adresse: editedAddress,
+      status: editedStatusText,
+      information: editedInformation,
+      business_type: editedBusinessType,
+      is_customer: customer.is_customer,
+    };
+    const success = await updateCustomer(id, updatedData);
+    if (success) {
+      setCustomer(prev => ({ ...prev, ...updatedData }));
+      setIsEditing(false);
+    } else {
+      setError('Failed to save customer changes. Please try again.');
     }
   };
 
-  
-  //   CONTACT LEVEL ACTIONS
-  
-
-  // Add contact
-  const handleAddContact = (e) => {
-    e.preventDefault();
+  const handleDelete = async () => {
+    // This deletes the whole BUSINESS
     if (!customer) return;
-
-    const newId = Date.now(); 
-    const updatedContacts = [
-      ...customer.contacts,
-      { id: newId, ...newContact },
-    ];
-
-    setCustomer({ ...customer, contacts: updatedContacts });
-
-    // Clear form
-    setNewContact({ first_name: "", last_name: "", email: "" });
+    const isConfirmed = window.confirm(`DELETE CUSTOMER\nAre you sure you want to delete "${customer.business_name}"? This action cannot be undone.`);
+    if (isConfirmed) {
+      setError('');
+      const success = await deleteCustomer(id);
+      if (success) {
+        alert('Customer deleted successfully.');
+        navigate(location.pathname.includes("existing") ? "/dashboard/existing" : "/dashboard/potential");
+      } else {
+        setError('Failed to delete customer. Please try again.');
+      }
+    } else {
+      console.log('Customer deletion cancelled.');
+    }
   };
 
-  // Prepare edit mode
-  const handleEditContact = (contact) => {
-    setEditContactId(contact.id);
-    setEditContactData({
-      first_name: contact.first_name,
-      last_name: contact.last_name,
-      email: contact.email,
+  // --- CONTACT Handlers ---
+
+  // Start editing a specific contact
+  const handleEditContactClick = (contact) => {
+    setEditingContactId(contact.id);
+    // Pre-fill edit state with the contact's current data
+    setEditedContactData({
+        first_name: contact.first_name || '',
+        last_name: contact.last_name || '',
+        position: contact.position || '',
+        email: contact.email || '',
+        phone: contact.phone || '',
+        information: contact.information || ''
     });
+    setContactError(''); // Clear previous contact errors
   };
 
-  // Save contact changes
-  const handleSaveContact = (e) => {
-    e.preventDefault();
-    if (!customer) return;
-
-    const updatedContacts = customer.contacts.map((c) =>
-      c.id === editContactId ? { ...c, ...editContactData } : c
-    );
-
-    setCustomer({ ...customer, contacts: updatedContacts });
-    setEditContactId(null);  // exit edit mode
+  // Cancel editing the current contact
+  const handleCancelContactEdit = () => {
+    setEditingContactId(null);
+    setEditedContactData({ first_name: '', last_name: '', position: '', email: '', phone: '', information: '' }); // Clear temp data
+    setContactError('');
   };
 
-  // Delete ther contact
-  const handleDeleteContact = (contactId) => {
-    if (!customer) return;
-    const updatedContacts = customer.contacts.filter((c) => c.id !== contactId);
-    setCustomer({ ...customer, contacts: updatedContacts });
+  // Handle changes in contact input fields
+  const handleContactInputChange = (event) => {
+    const { name, value } = event.target;
+    setEditedContactData(prevData => ({
+      ...prevData,
+      [name]: value
+    }));
   };
 
-  // If no matching customer found
-  if (!customer) {
-    return <div>Loading or no customer found for ID: {id}</div>;
-  }
+  // Save changes to the currently edited contact
+  const handleSaveContact = async (contactId) => {
+    setContactError('');
+    // Basic validation example (can add more)
+    if (!editedContactData.first_name && !editedContactData.last_name) {
+        setContactError("Contact must have at least a first or last name.");
+        return;
+    }
+
+    const success = await updateContact(contactId, editedContactData);
+
+    if (success) {
+      // Update the contacts list in the state
+      setContacts(prevContacts =>
+        prevContacts.map(contact =>
+          contact.id === contactId ? { ...contact, ...editedContactData } : contact
+        )
+      );
+      handleCancelContactEdit(); // Exit edit mode for this contact
+    } else {
+      setContactError('Failed to save contact changes. Please try again.');
+    }
+  };
+
+  // Delete a specific contact (with confirmation)
+  const handleDeleteContact = async (contactId, contactName) => {
+    const isConfirmed = window.confirm(`DELETE CONTACT\nAre you sure you want to delete contact "${contactName}"?`);
+    if (isConfirmed) {
+      setContactError('');
+      const success = await deleteContact(contactId);
+
+      if (success) {
+        // Remove the contact from the list in the state
+        setContacts(prevContacts => prevContacts.filter(contact => contact.id !== contactId));
+        alert('Contact deleted successfully.');
+      } else {
+        setContactError('Failed to delete contact. Please try again.');
+      }
+    } else {
+      console.log('Contact deletion cancelled.');
+    }
+  };
+
+
+  // --- Render Logic ---
+
+  if (loading) return <div className="loading-message">Loading customer details...</div>;
+  if (error && !customer) return <div className="error-message">Error: {error}</div>;
+  if (!customer) return <div className="not-found-message">Customer not found</div>;
 
   return (
-    <div style={{ padding: "1rem" }}>
-      <h2>Details for {customer.business_name}</h2>
-      <p><strong>Address:</strong> {customer.address}</p>
-      <p><strong>Status:</strong> {customer.status}</p>
-      <p><strong>Info:</strong> {customer.info}</p>
+    <div className="customer-details-container">
+      {isEditing ? (
+        // --- BUSINESS EDIT MODE ---
+        <div className="customer-edit-form">
+          <h3>Editing {customer.business_name}</h3>
+          {error && <p className="error-message">{error}</p>}
+          {/* Customer Edit Form Fields */}
+          <div className="form-group">
+             <label>Business Name:</label><input type="text" value={editedName} onChange={(e) => setEditedName(e.target.value)} className="form-input"/>
+          </div>
+          <div className="form-group">
+             <label>Address:</label><input type="text" value={editedAddress} onChange={(e) => setEditedAddress(e.target.value)} className="form-input"/>
+          </div>
+          <div className="form-group">
+             <label>Business Type:</label><input type="text" value={editedBusinessType} onChange={(e) => setEditedBusinessType(e.target.value)} className="form-input"/>
+          </div>
+          <div className="form-group">
+             <label>Status Note:</label><textarea value={editedStatusText} onChange={(e) => setEditedStatusText(e.target.value)} rows="3" className="form-textarea"/>
+          </div>
+          <div className="form-group">
+             <label>Info:</label><textarea value={editedInformation} onChange={(e) => setEditedInformation(e.target.value)} rows="5" className="form-textarea"/>
+          </div>
+          {/* Action Buttons for Business Edit */}
+          <div className="form-actions">
+            <button onClick={handleSave} className="button button-save">Save Changes</button>
+            <button onClick={handleEditToggle} className="button button-cancel">Cancel</button>
+          </div>
+        </div>
 
-      <button onClick={handleDeleteCustomer}>Delete This Customer</button>
+      ) : (
 
-      <hr />
+        // --- BUSINESS VIEW MODE ---
+        <div className="customer-view-details">
+           {/* Display general error or contact-specific error */}
+           {(error || contactError) && <p className="error-message">{error || contactError}</p>}
+          <h2>{customer.business_name}</h2>
+          <p><strong>Address:</strong> {customer.adresse || 'N/A'}</p>
+          <p><strong>Business Type:</strong> {customer.business_type || 'N/A'}</p>
+          <p><strong>Status Note:</strong> {customer.status || 'N/A'}</p>
+          <p><strong>Info:</strong> {customer.information || 'N/A'}</p>
+          <p><strong>Customer Type:</strong> {customer.is_customer === '1' ? 'Existing Customer' : 'Potential Customer'}</p>
 
-      {/* CONTACTS SECTION */}
-      <h3>Contacts</h3>
-      <ul>
-        {customer.contacts.map((contact) => (
-          <li key={contact.id} style={{ marginBottom: "0.5rem" }}>
-            {editContactId === contact.id ? (
-              // EDIT MODE
-              <form onSubmit={handleSaveContact}>
-                <input
-                  type="text"
-                  value={editContactData.first_name}
-                  onChange={(e) =>
-                    setEditContactData({ ...editContactData, first_name: e.target.value })
-                  }
-                  placeholder="First Name"
-                />
-                <input
-                  type="text"
-                  value={editContactData.last_name}
-                  onChange={(e) =>
-                    setEditContactData({ ...editContactData, last_name: e.target.value })
-                  }
-                  placeholder="Last Name"
-                />
-                <input
-                  type="email"
-                  value={editContactData.email}
-                  onChange={(e) =>
-                    setEditContactData({ ...editContactData, email: e.target.value })
-                  }
-                  placeholder="Email"
-                />
-                <button type="submit">Save</button>
-                <button onClick={() => setEditContactId(null)}>Cancel</button>
-              </form>
-            ) : (
-              // DISPLAY MODE
-              <>
-                {contact.first_name} {contact.last_name} ({contact.email})
-                {"  "}
-                <button onClick={() => handleEditContact(contact)}>Edit</button>
-                <button onClick={() => handleDeleteContact(contact.id)}>Delete</button>
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
+          {/* Contacts Section */}
+          <h3>Contacts</h3>
+          {contacts.length > 0 ? (
+            <ul className="contact-list">
+              {contacts.map((c) => {
+                // Check if the current contact in the loop is the one being edited
+                const isEditingThisContact = editingContactId === c.id;
 
-      <h4>Add New Contact</h4>
-      <form onSubmit={handleAddContact} style={{ marginBottom: "1rem" }}>
-        <input
-          type="text"
-          value={newContact.first_name}
-          onChange={(e) => setNewContact({ ...newContact, first_name: e.target.value })}
-          placeholder="First Name"
-        />
-        <input
-          type="text"
-          value={newContact.last_name}
-          onChange={(e) => setNewContact({ ...newContact, last_name: e.target.value })}
-          placeholder="Last Name"
-        />
-        <input
-          type="email"
-          value={newContact.email}
-          onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
-          placeholder="Email"
-        />
-        <button type="submit">Add Contact</button>
-      </form>
-    </div>
+                return (
+                  <li key={c.id} className="contact-item"> {/* Add key and maybe class */}
+                    {isEditingThisContact ? (
+                      // --- CONTACT EDIT MODE (Inline Form) ---
+                      <div className="contact-edit-form">
+                        {contactError && <p className="error-message">{contactError}</p>} {/* Show contact specific errors here */}
+                        <div><input type="text" name="first_name" value={editedContactData.first_name} onChange={handleContactInputChange} placeholder="First Name" className="form-input small-input"/></div>
+                        <div><input type="text" name="last_name" value={editedContactData.last_name} onChange={handleContactInputChange} placeholder="Last Name" className="form-input small-input"/></div>
+                        <div><input type="text" name="position" value={editedContactData.position} onChange={handleContactInputChange} placeholder="Position" className="form-input small-input"/></div>
+                        <div><input type="email" name="email" value={editedContactData.email} onChange={handleContactInputChange} placeholder="Email" className="form-input small-input"/></div>
+                        <div><input type="tel" name="phone" value={editedContactData.phone} onChange={handleContactInputChange} placeholder="Phone" className="form-input small-input"/></div>
+                        <div><textarea name="information" value={editedContactData.information} onChange={handleContactInputChange} placeholder="Info" rows="2" className="form-textarea small-textarea"/></div>
+                        <button onClick={() => handleSaveContact(c.id)} className="button button-save small-button">Save</button>
+                        <button onClick={handleCancelContactEdit} className="button button-cancel small-button">Cancel</button>
+                      </div>
+                    ) : (
+                      // --- CONTACT VIEW MODE ---
+                      <div className="contact-view">
+                        <span> {/* Wrap text for better layout control */}
+                          {c.first_name} {c.last_name} ({c.position || 'N/A'}) - {c.email || 'N/A'}, {c.phone || 'N/A'} [{c.information || 'N/A'}]
+                        </span>
+                        {/* Buttons appear only when NOT editing the main customer */}
+                        {!isEditing && (
+                          <span className="contact-actions"> {/* Wrap buttons */}
+                            <button onClick={() => handleEditContactClick(c)} className="button button-edit small-button">Edit</button>
+                            <button onClick={() => handleDeleteContact(c.id, `${c.first_name} ${c.last_name}`)} className="button button-delete small-button">Delete</button>
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </li>
+                ); // End return for map item
+              })} {/* End contacts.map */}
+            </ul>
+          ) : (
+            <p>No contacts found for this customer.</p>
+          )}
+           {/* Optionally add an "Add Contact" button here */}
+           {/* <button className="button">Add New Contact</button> */}
+
+
+          {/* Action Buttons for the BUSINESS - only show when not editing a contact */}
+          {!editingContactId && (
+             <div className="detail-actions">
+                <button onClick={handleEditToggle} className="button button-edit">Edit Customer Details</button>
+                <button onClick={handleDelete} className="button button-delete">Delete This Customer</button>
+             </div>
+          )}
+
+        </div> // End customer-view-details
+      )} {/* End main isEditing ternary */}
+    </div> // End customer-details-container
   );
 }
 

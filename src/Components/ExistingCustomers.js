@@ -1,150 +1,123 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } // Import useContext
+  from "react";
 import { Link } from "react-router-dom";
-import { FaTrash } from "react-icons/fa";
-import "../style.css";
+import AddCustomerForm from "./AddCustomerForm";
+import { ApiContext } from "../ApiContext"; // Import ApiContext
 
 function ExistingCustomers() {
-  // Demo - can fetch from an API or parent context later
-  const [businesses, setBusinesses] = useState([
-    {
-      id: 1,
-      business_name: "Al Inc",
-      is_customer: 1,
-      address: "Oslo, Norway",
-      status: "Active",
-      contacts: [
-        { id: 101, first_name: "Ben", last_name: "Benson", email: "ben@example.com" },
-      ],
-    },
-    {
-      id: 2,
-      business_name: "Tech",
-      is_customer: 1,
-      address: "Bergen, Norway",
-      status: "Pending",
-      contacts: [
-        { id: 102, first_name: "Tod", last_name: "Todson", email: "tod@example.com" },
-      ],
-    },
-    {
-      id: 3,
-      business_name: "Alpha Solutions",
-      is_customer: 1,
-      address: "Oslo, Norway",
-      status: "Active",
-      contacts: [],
-    },
-  
-  ]);
-
-  // Search & filter states
+  const [businesses, setBusinesses] = useState([]); // Initial state is correctly an array
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
+  const [loading, setLoading] = useState(true); // Add loading state
+  const [error, setError] = useState(''); // Add error state
 
-  
-  // 1) Derived list after filters
- 
-  const filteredBusinesses = businesses
-    // Only show "existing" customers (is_customer === 1)
-    .filter((b) => b.is_customer === 1)
+  // Use the fetch function from context for consistency
+  const { fetchCustomersList } = useContext(ApiContext);
 
-    // Search  business name / address
-    .filter((b) => {
-      const lowerSearch = searchTerm.toLowerCase();
-      return (
-        b.business_name.toLowerCase().includes(lowerSearch) ||
-        b.address.toLowerCase().includes(lowerSearch)
-      );
-    })
-    // Status by filter if chosen 
-    .filter((b) => {
-      if (!filterStatus) return true; // if filterStatus is empty, show all
-      return b.status.toLowerCase() === filterStatus.toLowerCase();
-    });
-
-  
-  // Delete bznz
-  
-  const deleteBusiness = (id) => {
-    setBusinesses(businesses.filter((b) => b.id !== id));
+  // Function to load/reload data using context function
+  const loadExisting = async () => {
+    setLoading(true);
+    setError(''); // Clear previous errors
+    try {
+      const data = await fetchCustomersList(1); // Use context function, '1' for existing
+      // The context function already handles errors and returns [] on failure
+      // It also already includes credentials: 'include'
+      if (Array.isArray(data)) {
+          console.log("Loaded existing customers:", data);
+          setBusinesses(data);
+      } else {
+          // This case should ideally not happen if context function is correct
+          console.error("Received non-array data from fetchCustomersList:", data);
+          setError("Failed to load customer data correctly.");
+          setBusinesses([]);
+      }
+    } catch (err) {
+       // Catch errors from the async call itself (e.g., network error)
+      console.error("Error calling fetchCustomersList:", err);
+      setError("An error occurred while fetching customers.");
+      setBusinesses([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  
-  // search input, filter dropdown, table etc
+  // Initial load
+  useEffect(() => {
+    loadExisting();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchCustomersList]); // Depend on the context function instance
+
+
+  // Filtering - Add check to ensure businesses is an array before filtering
+  const filtered = Array.isArray(businesses) ? businesses.filter((b) => {
+      const lower = searchTerm.toLowerCase();
+      // Ensure properties exist before calling toLowerCase
+      const nameMatch = b.business_name && b.business_name.toLowerCase().includes(lower);
+      const addressMatch = b.adresse && b.adresse.toLowerCase().includes(lower); // Use 'adresse' to match PHP
+      return nameMatch || addressMatch;
+    }) : []; // Default to empty array if businesses is not an array
+
 
   return (
     <div className="existing-customers-container">
       <h2 className="section-title">Existing Customers</h2>
 
-      {}
-      {}
-<div className="search-filter-container">
-  <input
-    type="text"
-    placeholder="Search by business name or address..."
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-    className="search-input"
-  />
+      {/* Add Customer Form */}
+      <AddCustomerForm
+        isCustomerValue={1}
+        onSuccess={loadExisting} // Call loadExisting to refresh list on success
+      />
 
-  <select
-    value={filterStatus}
-    onChange={(e) => setFilterStatus(e.target.value)}
-    className="filter-dropdown"
-  >
-    <option value="">All Statuses</option>
-    <option value="Active">Active</option>
-    <option value="Pending">Pending</option>
-    {}
-  </select>
-</div>
-
-
-      {}
-      <div className="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Business</th>
-              <th>Contact</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredBusinesses.map((business) => (
-              <tr key={business.id}>
-                {/* Clickable lenke til /dashboard/existing/:id */}
-                <td>
-                  <Link to={`/dashboard/existing/${business.id}`}>
-                    {business.business_name}
-                  </Link>
-                </td>
-                <td>{business.created_at}</td>
-                <td>{business.address}</td>
-                <td className={`status ${business.status.toLowerCase()}`}>
-                  {business.status}
-                </td>
-                <td>
-                  <button
-                    className="delete-btn"
-                    onClick={() => deleteBusiness(business.id)}
-                  >
-                    <FaTrash /> Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-
-            {}
-            {filteredBusinesses.length === 0 && (
-              <tr>
-                <td colSpan="5">No matching customers found.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+      {/* Search Input */}
+      <div className="search-filter-container">
+        <input
+          type="text"
+          placeholder="Search name / address"
+          className="search-input"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          disabled={loading} // Disable search while loading
+        />
       </div>
+
+      {/* Loading / Error / Table Display */}
+      {loading ? (
+        <p>Loading customers...</p>
+      ) : error ? (
+        <p className="error-message">{error}</p>
+      ) : (
+        <div className="table-wrapper">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Business</th>
+                <th>Address</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length > 0 ? (
+                filtered.map((b) => (
+                  <tr key={b.id}>
+                    <td>
+                      {/* Link uses 'id', ensure your routes are set up for /dashboard/existing/:id */}
+                      <Link to={`/dashboard/existing/${b.id}`}>{b.business_name}</Link>
+                    </td>
+                    {/* Display 'adresse' from PHP, or fallback */}
+                    <td>{b.adresse || "No address"}</td>
+                    <td>{b.status || "N/A"}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3">
+                    {searchTerm ? "No matching customers found." : "No existing customers found."}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
