@@ -59,7 +59,7 @@ function ExistingCustomers() {
 
   return (
     <div className="existing-customers-container">
-      <h2 className="section-title">Existing Customers</h2>
+      <h2 className="section-title">Existing Customers!</h2>
 
       {/* Add Customer Form */}
       <AddCustomerForm
